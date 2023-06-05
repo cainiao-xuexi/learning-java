@@ -1,4 +1,4 @@
-bash Git is a distributed version control system.Git is  a free software. goog gogg
+bash Git is a distributed version control system.Git is  a free software.s123
 
 bash git good
 
