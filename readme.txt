@@ -1,4 +1,4 @@
-bash Git is a distributed version control system.Git is free software.
+bash Git is a distributed version control system.Git is  a free software.
 
 bash git good
 
