@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>孕期打卡 · 家人共享版</title>
+<style>
+:root{--bg:#fff7f5;--card:#fff;--ink:#3d2b2b;--sub:#8a6f6f;--accent:#e2607e;--accent2:#f4a7b9;--line:#f3d9de;--amber:#c98a2d;--green:#4c9a6a;--shadow:0 8px 24px rgba(226,96,126,.10);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.75;padding-bottom:60px;}
+.wrap{max-width:860px;margin:0 auto;padding:0 18px;}
+header{background:linear-gradient(135deg,#e2607e,#f093a9);color:#fff;padding:34px 0 28px;border-radius:0 0 28px 28px;box-shadow:var(--shadow);}
+header .wrap{display:flex;flex-direction:column;gap:6px;}
+h1{font-size:25px;letter-spacing:1px;}
+.today{font-size:15px;opacity:.95;}.today b{font-size:22px;}
+.edd{font-size:13px;opacity:.88;}
+.progress{background:rgba(255,255,255,.25);border-radius:999px;height:10px;margin-top:12px;overflow:hidden;}
+.progress i{display:block;height:100%;width:0;background:#fff;border-radius:999px;transition:width .6s;}
+.plabel{font-size:12px;opacity:.9;margin-top:4px;}
+.syncbadge{margin-top:8px;font-size:12.5px;background:rgba(255,255,255,.2);border-radius:999px;padding:3px 14px;width:max-content;}
+.syncbadge.ok{background:rgba(76,154,106,.35);}
+.syncbadge.bad{background:rgba(200,80,80,.4);}
+.setbtn{margin-top:10px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.6);color:#fff;padding:6px 16px;border-radius:999px;font-size:13px;cursor:pointer;align-self:flex-start;}
+section{margin-top:26px;}
+h2{font-size:19px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+h2::before{content:"";width:5px;height:20px;background:var(--accent);border-radius:3px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);margin-bottom:14px;}
+.stage{border:2px solid var(--accent);background:linear-gradient(180deg,#fff,#fff2f5);}
+.stage .badge{display:inline-block;background:var(--accent);color:#fff;font-size:12px;padding:3px 12px;border-radius:999px;margin-bottom:8px;}
+ul{padding-left:1.3em;}li{margin:5px 0;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:640px){.grid{grid-template-columns:1fr;}}
+.warn{background:#fff8ec;border:1px solid #f2d9a8;border-radius:14px;padding:13px 16px;margin-top:12px;}
+.warn b{color:var(--amber);}
+.note{font-size:12.5px;color:var(--sub);margin-top:8px;}
+.pill{display:inline-block;background:#fdeef2;color:#a13a55;border-radius:999px;padding:2px 12px;font-size:13px;margin:3px 4px 3px 0;}
+/* 打卡 */
+.check-card{text-align:center;padding:22px;}
+.name-row{display:flex;gap:8px;justify-content:center;margin-bottom:12px;}
+.name-row input{padding:9px 14px;border:1px solid var(--line);border-radius:999px;font-size:15px;width:150px;text-align:center;}
+.check-btn{background:linear-gradient(135deg,#e2607e,#f093a9);color:#fff;border:none;font-size:17px;padding:12px 34px;border-radius:999px;cursor:pointer;box-shadow:var(--shadow);}
+.check-btn:disabled{background:#d9c2c8;cursor:default;}
+.people{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px;}
+.person{background:#fdeef2;border-radius:999px;padding:4px 14px;font-size:13.5px;color:#a13a55;}
+.person b{color:var(--accent);}
+.cal{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px;}
+.cal span{width:26px;height:26px;line-height:26px;border-radius:50%;font-size:12px;background:#f6e6ea;color:#c9a5ae;}
+.cal span.on{background:var(--accent);color:#fff;}
+table{width:100%;border-collapse:collapse;font-size:14.5px;}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:center;}
+th{background:#fdeef2;color:#a13a55;}
+footer{text-align:center;color:var(--sub);font-size:12.5px;margin-top:34px;padding:0 20px;}
+.modal{position:fixed;inset:0;background:rgba(61,43,43,.45);display:none;align-items:center;justify-content:center;z-index:99;padding:18px;}
+.modal.show{display:flex;}
+.modal .box{background:#fff;border-radius:18px;padding:24px;max-width:430px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.modal h3{font-size:18px;margin-bottom:14px;color:var(--accent);}
+.modal label{font-size:14px;display:block;margin:10px 0 4px;}
+.modal input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;}
+.modal .row{display:flex;gap:10px;margin-top:16px;}
+.modal button{flex:1;padding:10px;border:none;border-radius:10px;font-size:15px;cursor:pointer;}
+.modal .ok{background:var(--accent);color:#fff;}
+.modal .cancel{background:#f3e6e9;color:var(--sub);}
+.btnline{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.btnline button{flex:1;padding:9px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:14px;cursor:pointer;color:var(--accent);min-width:130px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>🌸 孕期打卡 · 家人共享</h1>
+    <div class="today" id="todayLine">载入中…</div>
+    <div class="edd" id="eddLine"></div>
+    <div class="progress"><i id="pbar"></i></div>
+    <div class="plabel" id="plabel"></div>
+    <div class="syncbadge" id="syncBadge">⏳ 同步状态</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="setbtn" onclick="openSet()">⚙️ 设置</button>
+      <button class="setbtn" onclick="copyLink()">🔗 复制家人共享链接</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <h2>每日打卡</h2>
+    <div class="card check-card">
+      <div class="name-row">
+        <input id="nameInput" placeholder="你的名字（如：妈妈）" maxlength="8">
+      </div>
+      <button class="check-btn" id="checkBtn" onclick="doCheck()">✔ 打卡</button>
+      <div class="people" id="people"></div>
+      <div class="cal" id="cal"></div>
+      <div class="note" id="checkNote">打卡起点：孕 5 周第 1 天（2026-11-07）· 点下方按钮可创建云端共享空间，家人打开同一链接即可看到打卡</div>
+      <div class="btnline" id="shareCreate" style="display:none;">
+        <button onclick="createShare()">☁️ 创建云端共享空间</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>本阶段注意事项</h2>
+    <div class="card stage">
+      <span class="badge" id="stageBadge"></span>
+      <ul id="stageTips"></ul>
+      <div class="warn" id="stageWarn" style="display:none"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>产检时间轴</h2>
+    <div class="card"><ul id="timeline" style="list-style:none;padding-left:0;"></ul></div>
+  </section>
+
+  <section>
+    <h2>常备知识</h2>
+    <div class="card">
+      <b>孕期必备 3 大营养素</b>
+      <div style="margin-top:8px;">
+        <span class="pill">1. 叶酸 0.4–0.8 mg</span>
+        <span class="pill">2. 多种维生素：B族 · 少量铁 · 少量钙</span>
+        <span class="pill">3. 钙 800 mg/天（20周起）</span>
+      </div>
+      <div class="note">叶酸请每天规律服用；其余遵医嘱。</div>
+    </div>
+    <div class="card">
+      <b>20周补钙挑选 5 要点</b>
+      <ul>
+        <li>选好吸收的，例如柠檬酸钙</li>
+        <li>成分含 D、K 的更好</li>
+        <li>便秘可选含山梨醇成分</li>
+        <li>钙镁片非必需（基本不缺镁）</li>
+        <li>选配料表纯净的</li>
+      </ul>
+    </div>
+    <div class="grid">
+      <div class="card"><b>孕期重点观察</b>
+        <ul><li>血压</li><li>是否贫血</li><li>肝功能</li><li>血糖</li><li>体重</li></ul>
+      </div>
+      <div class="card"><b>顺产 & 其他准备</b>
+        <ul><li>想顺产：做孕期操、控制宝宝体重（5–6斤）</li><li>清理药箱</li><li>清理衣柜</li></ul>
+      </div>
+    </div>
+    <div class="card">
+      <b>孕检频率速查</b>
+      <table style="margin-top:8px;">
+        <tr><th>阶段</th><th>频率</th></tr>
+        <tr><td>28周以前</td><td>一月一次</td></tr>
+        <tr><td>28周以后</td><td>两周一次</td></tr>
+        <tr><td>36周以后</td><td>一周一次</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <footer>本页为个人备忘整理，仅供参考，不能替代医疗建议；检查与用药请以产检医生意见为准。祝好孕！🌸</footer>
+</div>
+
+<!-- 设置弹窗 -->
+<div class="modal" id="setModal">
+  <div class="box">
+    <h3>设置</h3>
+    <label>末次月经第一天</label>
+    <input type="date" id="lmpInput">
+    <label>我的名字（打卡显示用）</label>
+    <input id="myName" placeholder="如：妈妈 / 爸爸" maxlength="8">
+    <div class="note">孕周按末次月经自动计算，全家人看到同一进度。</div>
+    <div class="row">
+      <button class="cancel" onclick="closeSet()">取消</button>
+      <button class="ok" onclick="saveSet()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STAGES=[
+ {from:1,to:4,title:"孕1–4周 · 确认怀孕",tips:["可用验孕棒检测，或到医院查血 HCG 确认怀孕。","开始补叶酸 0.4–0.8 mg/天。","避免烟酒、随意用药，保持规律作息。"],warn:""},
+ {from:5,to:6,title:"孕5–6周 · 确认是否宫内",tips:["⭐ 本阶段最关键：做B超确认孕囊位置，排除宫外孕（遵医嘱安排时间）。","继续叶酸 0.4–0.8 mg/天。","就近了解建档/产检医院。","不要自行服药，用药前先问医生。"],warn:"⚠️ 出现一侧下腹剧痛、阴道出血、头晕晕厥、严重呕吐无法进食 → 请立即就医。"},
+ {from:7,to:8,title:"孕7–8周 · 看胎心胎芽",tips:["遵医嘱复查B超，确认胎心胎芽发育。","妊娠反应明显：少食多餐、清淡饮食。","如孕吐严重无法进水进食，及时就医。"],warn:""},
+ {from:9,to:12,title:"孕9–12周 · 建档 + 大生化",tips:["到产科建档，做全面检查（含血、尿、肝肾功能等）。","按本表计划：12周查大生化。","11–13+6周可做 NT 筛查（遵医嘱）。","继续叶酸。"],warn:""},
+ {from:13,to:19,title:"孕13–19周 · 稳定期",tips:["进入相对舒适期，保持散步等温和运动。","产检频率：一月一次。","关注血压、体重变化。","可开始轻柔胎教音乐。"],warn:""},
+ {from:20,to:20,title:"孕20周 · 里程碑",tips:["开始胎教。","开始补钙 800 mg/天；如仍抽筋可 1200–2000 mg/天（肾功能有问题者请先问医生）。","多数准妈妈此阶段开始感觉到胎动。","宝宝体重控制目标：5–6斤。"],warn:""},
+ {from:21,to:27,title:"孕21–27周 · 排畸与糖耐",tips:["20–24周前后做大排畸B超（遵医嘱）。","24–28周做糖耐量筛查（OGTT），注意血糖。","产检仍为一月一次。","注意补铁防贫血。"],warn:""},
+ {from:28,to:28,title:"孕28周 · 进入两周一检",tips:["产检改为两周一次。","开始每天数胎动，早中晚各1小时。","注意血压、水肿情况。"],warn:""},
+ {from:29,to:35,title:"孕29–35周 · 待产准备",tips:["两周一检继续。","坚持数胎动，异常及时就诊。","准备待产包、宝宝用品（顺便清理衣柜）。","控制体重增长，想顺产可做孕期操。"],warn:""},
+ {from:36,to:36,title:"孕36周 · 进入每周一检",tips:["产检改为每周一次。","开始胎心监护（遵医嘱）。","学习待产信号：见红、破水、规律宫缩。"],warn:""},
+ {from:37,to:44,title:"孕37周+ · 足月待产",tips:["每周一次产检 + 胎心监护。","想顺产：继续做孕期操、控制宝宝体重 5–6斤。","出现见红、破水或规律宫缩 → 及时入院。"],warn:"⚠️ 胎动明显减少或消失、阴道流液流血，请马上就医。"}
+];
+const MILESTONES=[["1–5周","检查怀孕"],["5–6周","确认是否宫内"],["12周","查大生化"],["20周","胎教开始 · 补钙"],["24–28周","糖耐量筛查（遵医嘱）"],["28周","两周一检 · 数胎动"],["36周","每周一检 · 胎心监护"],["37周+","足月待产"]];
+function $(id){return document.getElementById(id);}
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function fmt(d){return d.toISOString().slice(0,10);}
+
+/* ====== 云端同步（kvdb.io 免费服务） ====== */
+const API="https://kvdb.io";
+let bucket=null; // 共享空间ID
+const q=new URLSearchParams(location.search);
+if(q.get('b')){bucket=q.get('b');save('bb_bucket',bucket);}
+else bucket=load('bb_bucket',null);
+
+let state=load('bb_state',null)||{lmp:'2026-10-10',checkins:[],updated:0};
+let syncState='local';
+
+function setBadge(msg,cls){const b=$('syncBadge');b.textContent=msg;b.className='syncbadge'+(cls?' '+cls:'');}
+
+async function pull(){
+  if(!bucket)return;
+  try{
+    const r=await fetch(API+'/'+bucket+'/state');
+    if(!r.ok)throw 0;
+    const txt=await r.text();
+    if(txt){
+      const remote=JSON.parse(txt);
+      // 合并：以远端为准，本地独有的打卡并入
+      const key=s=>s.n+'|'+s.d;
+      const rset=new Set((remote.checkins||[]).map(key));
+      const merged=(remote.checkins||[]).concat((state.checkins||[]).filter(c=>!rset.has(key(c))));
+      state={lmp:remote.lmp||state.lmp,checkins:merged,updated:remote.updated||0};
+      save('bb_state',state);
+    }
+    syncState='cloud';
+    setBadge('☁️ 已同步 '+new Date().toTimeString().slice(0,5),'ok');
+  }catch(e){
+    syncState='local';
+    setBadge('📴 离线中（数据在本地，恢复网络后自动重试）','bad');
+  }
+  render();
+}
+async function push(){
+  if(!bucket)return false;
+  state.updated=Date.now();
+  try{
+    const r=await fetch(API+'/'+bucket+'/state',{method:'POST',body:JSON.stringify(state)});
+    if(!r.ok)throw 0;
+    save('bb_state',state);
+    syncState='cloud';
+    setBadge('☁️ 已同步 '+new Date().toTimeString().slice(0,5),'ok');
+    return true;
+  }catch(e){
+    setBadge('📴 同步失败，已保存在本机','bad');
+    return false;
+  }
+}
+async function createShare(){
+  const email=(load('bb_email','')||prompt('创建云端空间需要一个邮箱（仅用于创建，不会收到邮件）：','')||'').trim();
+  if(!email)return;
+  save('bb_email',email);
+  setBadge('⏳ 正在创建…','');
+  try{
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'email='+encodeURIComponent(email)});
+    if(!r.ok)throw 0;
+    bucket=(await r.text()).trim();
+    save('bb_bucket',bucket);
+    await push();
+    render();
+    copyLink();
+  }catch(e){setBadge('❌ 创建失败，请检查网络后重试','bad');}
+}
+function buildShareUrl(){
+  const href = location.href;
+  // 识别 htmlpreview 环境：? 后面才是真正的文件地址
+  if (href.indexOf('htmlpreview.github.io/?') > -1) {
+    const target = href.split('htmlpreview.github.io/?')[1].split('?')[0];
+    // 把 github.com/.../blob/... 转成 raw.githack.com/... 格式
+    const m = target.match(/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/);
+    if (m) {
+      return 'https://raw.githack.com/' + m[1] + '/' + m[2] + '/' + m[3] + '/' + m[4] + '?b=' + bucket;
+    }
+  }
+  // 其他环境（raw.githack、GitHub Pages、本地）：正常去参数再拼
+  return href.split('?')[0] + '?b=' + bucket;
+}
+
+function copyLink(){
+  if(!bucket){alert('请先点「创建云端共享空间」');return;}
+  const url = buildShareUrl();
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject())
+    .then(()=>alert('已复制家人共享链接：\n'+url+'\n\n发到家庭群，大家打开就能一起打卡、看孕周'))
+    .catch(()=>prompt('复制此链接发给家人：',url));
+}
+
+/* ====== 孕周计算 & 渲染 ====== */
+function render(){
+  const lmp=state.lmp||'2026-10-10';
+  const lmpD=new Date(lmp+'T00:00:00');
+  const now=new Date();now.setHours(0,0,0,0);
+  const days=Math.max(0,Math.floor((now-lmpD)/86400000));
+  const wk=Math.floor(days/7),day=days%7;
+  const edd=new Date(lmpD.getTime()+280*86400000);
+  $('todayLine').innerHTML='今天是 <b>孕 '+wk+' 周 第 '+(day+1)+' 天</b>（'+wk+'W+'+day+'）';
+  $('eddLine').textContent='📅 估算预产期：'+edd.getFullYear()+'年'+(edd.getMonth()+1)+'月'+edd.getDate()+'日（以B超核定为准）';
+  const pct=Math.min(100,Math.round(days/280*100));
+  $('pbar').style.width=pct+'%';
+  $('plabel').textContent='约完成 '+pct+'%（按40周计）· 打卡起点：孕5周第1天';
+
+  const st=STAGES.find(s=>wk>=s.from&&wk<=s.to)||STAGES[STAGES.length-1];
+  $('stageBadge').textContent=st.title;
+  $('stageTips').innerHTML=st.tips.map(t=>'<li>'+t+'</li>').join('');
+  if(st.warn){$('stageWarn').style.display='block';$('stageWarn').innerHTML='<b>'+st.warn+'</b>';}
+  else $('stageWarn').style.display='none';
+
+  $('timeline').innerHTML=MILESTONES.map(m=>{
+    const rng=m[0].replace('+','').split('–').map(Number);
+    const end=(m[0].indexOf('+')>-1)?99:(rng[1]||(rng[0]===1?5:rng[0]));
+    const start=rng[0]===1?1:rng[0];
+    const cur=(wk>=start&&wk<=end)?' ⬅ 当前':'';
+    const op=(wk>end)?' style="opacity:.45"':'';
+    return '<li'+op+'><b>'+m[0]+'</b> · '+m[1]+cur+'</li>';
+  }).join('');
+
+  renderCheck();
+}
+
+function renderCheck(){
+  const todayStr=fmt(new Date());
+  const myName=load('bb_name','');
+  if(myName)$('nameInput').value=myName;
+  const mine=state.checkins.filter(c=>c.d===todayStr&&(!myName||c.n===myName));
+  $('checkBtn').disabled=(mine.length>0);
+  $('checkBtn').textContent=$('checkBtn').disabled?'✔ 今日已打卡':'✔ 打卡';
+
+  // 今日已打卡的人
+  const today=state.checkins.filter(c=>c.d===todayStr);
+  $('people').innerHTML=today.length
+    ? today.map(c=>'<span class="person">🌷 <b>'+escapeHtml(c.n||'匿名')+'</b> 已打卡</span>').join('')
+    : '<span class="note">今天还没有人打卡</span>';
+
+  // 本月日历
+  const y=+todayStr.slice(0,4),m=+todayStr.slice(5,7);
+  const nDays=new Date(y,m,0).getDate();
+  const monthSet=new Set(state.checkins.map(c=>c.d));
+  let h='';
+  for(let i=1;i<=nDays;i++){
+    const s=todayStr.slice(0,8)+String(i).padStart(2,'0');
+    h+='<span class="'+(monthSet.has(s)?'on':'')+'">'+i+'</span>';
+  }
+  $('cal').innerHTML=h;
+  $('shareCreate').style.display=bucket?'none':'block';
+}
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+async function doCheck(){
+  const n=($('nameInput').value||'').trim()||'匿名';
+  save('bb_name',n);
+  const todayStr=fmt(new Date());
+  if(state.checkins.some(c=>c.n===n&&c.d===todayStr))return;
+  state.checkins.push({n:n,d:todayStr,t:Date.now()});
+  if(bucket){await push();}else{save('bb_state',state);}
+  renderCheck();
+}
+
+/* ====== 设置 ====== */
+function openSet(){
+  $('lmpInput').value=state.lmp||'2026-10-10';
+  $('myName').value=load('bb_name','');
+  $('setModal').classList.add('show');
+}
+function closeSet(){$('setModal').classList.remove('show');}
+async function saveSet(){
+  const v=$('lmpInput').value;
+  if(!v){alert('请选择日期');return;}
+  state.lmp=v;
+  const nm=$('myName').value.trim();
+  if(nm)save('bb_name',nm);
+  if(bucket){await push();}else{save('bb_state',state);}
+  closeSet();render();
+}
+
+/* ====== 启动 ====== */
+$('nameInput').addEventListener('change',e=>save('bb_name',e.target.value.trim()));
+(async()=>{
+  if(bucket){setBadge('⏳ 正在连接云端…','');await pull();}
+  else{setBadge('📝 本地模式（创建共享空间后家人可实时查看）','');render();}
+  setInterval(()=>{if(bucket)pull();},30000); // 每30秒自动同步
+})();
+</script>
+</body>
+</html>
